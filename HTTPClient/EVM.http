@@ -1,0 +1,12 @@
+### 获取当前区块高度
+GET {{host}}/block
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+

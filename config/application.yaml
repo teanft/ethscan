@@ -2,7 +2,8 @@ server:
   host: localhost
   port: 8081
 client:
-  url: https://goerli.blockpi.network/v1/rpc/public
+#  url: https://goerli.blockpi.network/v1/rpc/public
+  url: https://eth.llamarpc.com
   timeout: 5s
   maxRetries: 3
   sleeper: 2s

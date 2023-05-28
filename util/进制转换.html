@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>进制转换器</title>
+</head>
+<body>
+<h1>进制转换器</h1>
+<label for="inputNumber">请输入一个数字（以0b开头表示二进制，0o开头表示八进制，0x开头表示十六进制）：</label>
+<input type="text" id="inputNumber" placeholder="例如：0b1101, 0o72, 0x1A" oninput="convertToDecimal()">
+<p id="result"></p>
+
+<script>
+    function convertToDecimal() {
+        const inputNumber = document.getElementById('inputNumber').value;
+        const resultElement = document.getElementById('result');
+
+        let base;
+        let prefix;
+        if (/^0b[01]+$/.test(inputNumber)) {
+            base = 2;
+            prefix = '二进制';
+        } else if (/^0o[0-7]+$/.test(inputNumber)) {
+            base = 8;
+            prefix = '八进制';
+        } else if (/^0x[\da-fA-F]+$/.test(inputNumber)) {
+            base = 16;
+            prefix = '十六进制';
+        } else {
+            resultElement.textContent = '请输入一个有效的数字（以0b开头表示二进制，0o开头表示八进制，0x开头表示十六进制）。';
+            return;
+        }
+
+        const decimalNumber = BigInt(inputNumber);
+        resultElement.textContent = `${prefix}转换为十进制：${decimalNumber.toString(10)}`;
+    }
+</script>
+</body>
+</html>

@@ -1,96 +1,183 @@
 package common
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"github.com/gin-gonic/gin"
+	"context"
+	"encoding/hex"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/teanft/ethscan/config"
 	"github.com/teanft/ethscan/util"
-	"io"
-	"net/http"
+	"math/big"
 )
 
-type RequestData struct {
-	Jsonrpc string   `json:"jsonrpc"`
-	Method  string   `json:"method"`
-	Params  []string `json:"params"`
-	Id      int64    `json:"id"`
+var Client *ethclient.Client
+
+func NewClient() (*ethclient.Client, error) {
+	client, err := ethclient.Dial(config.Cfg.Client.URL)
+	if err != nil {
+		return nil, util.NewErr("failed to create ethclient", err)
+	}
+	Client = client
+	return Client, nil
 }
 
-func sendHTTPRequest(url string, headers map[string]string, body io.Reader) ([]byte, error) {
-	req, err := http.NewRequest("POST", url, body)
+func GetBlockNumber() (uint64, error) {
+	number, err := Client.BlockNumber(context.Background())
 	if err != nil {
-		return nil, err
+		return 0, util.NewErr("failed to get block number", err)
 	}
 
-	for key, val := range headers {
-		req.Header.Set(key, val)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			panic(util.NewErr("failed to close body", err))
-			return
-		}
-	}(resp.Body)
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode >= 400 {
-		return nil, errors.New(fmt.Sprintf("Request failed: %s", respBody))
-	}
-
-	return respBody, nil
+	return number, nil
 }
 
-func getJSONRPCRequestBody(jsonrpc, method string, params []string, id int64) ([]byte, error) {
-	requestData := RequestData{
-		Jsonrpc: jsonrpc,
-		Method:  method,
-		Params:  params,
-		Id:      id,
-	}
-	requestBody, err := json.Marshal(requestData)
+func GetGasPrice() (*big.Int, error) {
+	gasPrice, err := Client.SuggestGasPrice(context.Background())
 	if err != nil {
-		return nil, err
+		return nil, util.NewErr("failed to get gas price", err)
 	}
 
-	return requestBody, nil
+	return gasPrice, nil
 }
 
-func CallRPC(c *gin.Context, method string, params []string) (map[string]interface{}, error) {
-
-	requestBody, err := getJSONRPCRequestBody("2.0", method, params, 83)
+func GetBalanceAt(address string, blockNumber *big.Int) (*big.Int, error) {
+	account := common.HexToAddress(address)
+	balance, err := Client.BalanceAt(context.Background(), account, blockNumber)
 	if err != nil {
-		Fail(c, nil, fmt.Sprintf("Failed to construct JSON-RPC request: %s", err.Error()))
-		return nil, util.NewErr("failed to construct JSON-RPC request", err)
+		return nil, util.NewErr("failed to get balance", err)
 	}
 
-	headers := map[string]string{
-		"Content-Type": "application/json",
-	}
+	return balance, nil
+}
 
-	responseBytes, err := sendHTTPRequest(config.Cfg.Client.URL, headers, bytes.NewBuffer(requestBody))
+func GetPendingBalanceAt(address string) (*big.Int, error) {
+	account := common.HexToAddress(address)
+	pendingBalance, err := Client.PendingBalanceAt(context.Background(), account)
 	if err != nil {
-		Fail(c, nil, fmt.Sprintf("Failed to send HTTP request: %s", err.Error()))
-		return nil, util.NewErr("failed to send HTTP request", err)
+		return nil, util.NewErr("failed to get pending balance", err)
 	}
 
-	var responseData map[string]interface{}
+	return pendingBalance, nil
+}
 
-	if err = json.Unmarshal(responseBytes, &responseData); err != nil {
-		Fail(c, nil, fmt.Sprintf("Failed to decode response body: %s", err.Error()))
-		return nil, util.NewErr("failed to decode response body", err)
+func GetNonceAt(address string, blockNumber *big.Int) (uint64, error) {
+	account := common.HexToAddress(address)
+	nonce, err := Client.NonceAt(context.Background(), account, blockNumber)
+	if err != nil {
+		return 0, util.NewErr("failed to get nonce", err)
 	}
-	return responseData, nil
+
+	return nonce, nil
+}
+
+func GetPendingNonceAt(address string) (uint64, error) {
+	account := common.HexToAddress(address)
+	nonce, err := Client.PendingNonceAt(context.Background(), account)
+	if err != nil {
+		return 0, util.NewErr("failed to get pending nonce", err)
+	}
+
+	return nonce, err
+}
+
+func GetTransactionCountByHash(hash string) (uint, error) {
+	blockHash := common.HexToHash(hash)
+	count, err := Client.TransactionCount(context.Background(), blockHash)
+	if err != nil {
+		return 0, util.NewErr("failed to get block transaction count", err)
+	}
+
+	return count, nil
+}
+
+func GetPendingTransactionCount() (uint, error) {
+	count, err := Client.PendingTransactionCount(context.Background())
+	if err != nil {
+		return 0, util.NewErr("failed to get pending transaction count", err)
+	}
+
+	return count, nil
+}
+
+func SendTransaction(rawTx string, tx *types.Transaction) error {
+	//rawTx := "f86d8202b28477359400825208944592d8f8d7b001e72cb26a73e4fa1806a51ac79d880de0b6b3a7640000802ca05924bde7ef10aa88db9c66dd4f5fb16b46dff2319b9968be983118b57bb50562a001b24b31010004f13d9a26b320845257a6cfc2bf819a3d55e3fc86263c5f0772"
+	rawTxBytes, err := hex.DecodeString(rawTx)
+
+	err = rlp.DecodeBytes(rawTxBytes, &tx)
+	if err != nil {
+		return util.NewErr("failed to decode transaction", err)
+	}
+	err = Client.SendTransaction(context.Background(), tx)
+
+	if err != nil {
+		return util.NewErr("failed to send transaction", err)
+	}
+
+	return nil
+}
+
+func EstimateGas(msg ethereum.CallMsg) (uint64, error) {
+	gas, err := Client.EstimateGas(context.Background(), msg)
+	if err != nil {
+		return 0, util.NewErr("failed to estimate gas", err)
+	}
+
+	return gas, nil
+}
+
+func GetBlockByHash(hash string) (*types.Block, error) {
+	block, err := Client.BlockByHash(context.Background(), common.HexToHash(hash))
+	if err != nil {
+		return nil, util.NewErr("failed to get block by hash", err)
+	}
+
+	return block, nil
+}
+
+func GetBlockByNumber(number *big.Int) (*types.Block, error) {
+	block, err := Client.BlockByNumber(context.Background(), number)
+	if err != nil {
+		return nil, util.NewErr("failed to get block by number", err)
+	}
+
+	return block, nil
+}
+
+func GetTransactionByHash(hash string) (*types.Transaction, bool, error) {
+	tx, isPending, err := Client.TransactionByHash(context.Background(), common.HexToHash(hash))
+	if err != nil {
+		return nil, isPending, util.NewErr("failed to get transaction by hash", err)
+	}
+
+	return tx, isPending, nil
+}
+
+func GetTransactionSender(tx *types.Transaction, block string, index uint) (common.Address, error) {
+	blockHash := common.HexToHash(block)
+	address, err := Client.TransactionSender(context.Background(), tx, blockHash, index)
+	if err != nil {
+		return common.Address{}, util.NewErr("failed to get transaction sender", err)
+	}
+
+	return address, nil
+}
+
+func GetTransactionInBlock(blockHash string, index uint) (*types.Transaction, error) {
+	tx, err := Client.TransactionInBlock(context.Background(), common.HexToHash(blockHash), index)
+	if err != nil {
+		return nil, util.NewErr("failed to get transaction in block", err)
+	}
+
+	return tx, nil
+}
+
+func GetTransactionReceipt(hash string) (*types.Receipt, error) {
+	receipt, err := Client.TransactionReceipt(context.Background(), common.HexToHash(hash))
+	if err != nil {
+		return nil, util.NewErr("failed to get transaction receipt", err)
+	}
+
+	return receipt, nil
 }

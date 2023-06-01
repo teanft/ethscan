@@ -15,7 +15,7 @@ import (
 )
 
 func GetRawTx(gas uint64, private, to string, value *big.Int) (string, error) {
-	signedTX, err := getSignedTx(gas, private, to, value)
+	signedTX, err := GetSignedTx(gas, private, to, value)
 	rawTxBytes, err := signedTX.MarshalBinary()
 	if err != nil {
 		return "", util.NewErr("cannot marshalBinary", err)
@@ -27,7 +27,7 @@ func GetRawTx(gas uint64, private, to string, value *big.Int) (string, error) {
 }
 
 func GetSignedTxData(gas uint64, private, to string, value *big.Int) (string, error) {
-	tx, err := getSignedTx(gas, private, to, value)
+	tx, err := GetSignedTx(gas, private, to, value)
 	data, err := tx.MarshalBinary()
 	if err != nil {
 		return "", util.NewErr("cannot marshalBinary", err)
@@ -36,7 +36,7 @@ func GetSignedTxData(gas uint64, private, to string, value *big.Int) (string, er
 	return hexutil.Encode(data), nil
 }
 
-func getSignedTx(gas uint64, private, to string, value *big.Int) (*types.Transaction, error) {
+func GetSignedTx(gas uint64, private, to string, value *big.Int) (*types.Transaction, error) {
 	toAddress := common.HexToAddress(to)
 	privateKey, err := crypto.HexToECDSA(private)
 	if err != nil {

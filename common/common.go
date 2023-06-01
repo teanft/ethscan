@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -101,15 +102,34 @@ func GetPendingTransactionCount() (uint, error) {
 	return count, nil
 }
 
-func SendTransaction(rawTx string, tx *types.Transaction) error {
-	rawTxBytes, err := hex.DecodeString(rawTx)
-
-	err = rlp.DecodeBytes(rawTxBytes, &tx)
+func SendSignedTransaction(sign string, tx *types.Transaction) error {
+	bytes, err := hexutil.Decode(sign)
 	if err != nil {
+		return util.NewErr("failed to decode sign", err)
+	}
+
+	if err = rlp.DecodeBytes(bytes, &tx); err != nil {
 		return util.NewErr("failed to decode transaction", err)
 	}
-	err = Client.SendTransaction(context.Background(), tx)
+
+	if err = Client.SendTransaction(context.Background(), tx); err != nil {
+		return util.NewErr("failed to send transaction", err)
+	}
+
+	return nil
+}
+
+func SendRawedTransaction(rawTx string, tx *types.Transaction) error {
+	rawTxBytes, err := hex.DecodeString(rawTx)
 	if err != nil {
+		return util.NewErr("failed to decode raw transaction", err)
+	}
+
+	if err = rlp.DecodeBytes(rawTxBytes, &tx); err != nil {
+		return util.NewErr("failed to decode transaction", err)
+	}
+
+	if err = Client.SendTransaction(context.Background(), tx); err != nil {
 		return util.NewErr("failed to send transaction", err)
 	}
 

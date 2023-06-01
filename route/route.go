@@ -13,7 +13,7 @@ func CollectRoute(r *gin.Engine) *gin.Engine {
 	r.POST("/pending_nonce", controller.PendingNonceHandler)
 	r.POST("/sign", controller.SignHandler)
 	r.POST("/raw", controller.RawHandler)
-	r.POST("/send", controller.SendSignTransactionHandler)
+	r.POST("/send_sign", controller.SendSignTransactionHandler)
 	r.POST("/send_raw", controller.SendRawTransactionHandler)
 	return r
 }

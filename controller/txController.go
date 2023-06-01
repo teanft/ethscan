@@ -33,7 +33,7 @@ func SendSignTransactionHandler(c *gin.Context) {
 	}
 
 	tx := new(types.Transaction)
-	err = common.SendTransaction(block.SignedTx, tx)
+	err = common.SendSignedTransaction(block.SignedTx, tx)
 	if err != nil {
 		common.Fail(c, gin.H{"send Transaction failed": err.Error()}, "Fail")
 		return
@@ -68,7 +68,7 @@ func SendRawTransactionHandler(c *gin.Context) {
 	}
 
 	tx := new(types.Transaction)
-	err = common.SendTransaction(block.RawTx, tx)
+	err = common.SendRawedTransaction(block.RawTx, tx)
 	if err != nil {
 		common.Fail(c, gin.H{"sendTransaction failed": err.Error()}, "Fail")
 		return

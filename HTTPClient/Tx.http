@@ -6,7 +6,7 @@ Content-Type: application/json
   "gas": 2100,
   "private": "2b70dca49b288dda99301cf7c6067b5b90c76542318950304bc32e60feecb258",
         "to": "0xc0749b740cAe8768b89547fEdbC33eB45afC236c",
-  "value": 345
+  "value": 567
 }
 
 > {%
@@ -16,16 +16,16 @@ Content-Type: application/json
     client.test("Request code success", function() {
         client.assert(response.body.code === 200, "Response code is not 200");
     });
-    client.global.set("signed_tx", response.body.data.signedTxData);
+    client.global.set("signed_tx", response.body.data.signed_tx_data);
 %}
 
 ### 广播已签名的Tx
 
-POST {{host}}/send
+POST {{host}}/send_sign
 Content-Type: application/json
 
 {
-  "signed_tx": {{signed_tx}}
+  "signed_tx": "{{signed_tx}}"
 }
 
 > {%

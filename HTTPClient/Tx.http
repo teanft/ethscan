@@ -1,0 +1,114 @@
+### 签名
+POST {{host}}/sign
+Content-Type: application/json
+
+{
+  "gas": 2100,
+  "private": "2b70dca49b288dda99301cf7c6067b5b90c76542318950304bc32e60feecb258",
+        "to": "0xc0749b740cAe8768b89547fEdbC33eB45afC236c",
+  "value": 345
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+    client.global.set("signed_tx", response.body.data.signedTxData);
+%}
+
+### 广播已签名的Tx
+
+POST {{host}}/send
+Content-Type: application/json
+
+{
+  "signed_tx": {{signed_tx}}
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+
+### 创建裸交易
+POST {{host}}/raw
+Content-Type: application/json
+
+{
+  "gas": 2100,
+  "private": "2b70dca49b288dda99301cf7c6067b5b90c76542318950304bc32e60feecb258",
+  "to": "0xc0749b740cAe8768b89547fEdbC33eB45afC236c",
+  "value": 456
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+    client.global.set("raw_tx", response.body.data.raw_tx);
+%}
+
+### 发送裸交易
+POST {{host}}/send_raw
+Content-Type: application/json
+
+{
+  "raw_tx": "{{raw_tx}}"
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+
+### 查询指定区块账户余额
+
+#POST {{host}}/balance
+#Content-Type: application/json
+#
+#{
+#  "address": "0xc0749b740cAe8768b89547fEdbC33eB45afC236c",
+#  "block_number": 17350888
+#}
+#
+#> {%
+#    client.test("Request executed successfully", function() {
+#        client.assert(response.status === 200, "Response status is not 200");
+#    });
+#    client.test("Request code success", function() {
+#        client.assert(response.body.code === 200, "Response code is not 200");
+#    });
+#%}
+
+### 查询指定区块的nonce
+
+#POST {{host}}/nonce
+#Content-Type: application/json
+#
+#{
+#  "address": "0xc0749b740cAe8768b89547fEdbC33eB45afC236c",
+#  "block_number": 17350888
+#}
+#
+#> {%
+#    client.test("Request executed successfully", function() {
+#        client.assert(response.status === 200, "Response status is not 200");
+#    });
+#    client.test("Request code success", function() {
+#        client.assert(response.body.code === 200, "Response code is not 200");
+#    });
+#%}

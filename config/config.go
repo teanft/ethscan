@@ -22,9 +22,15 @@ type ClientConfig struct {
 	Sleeper    time.Duration `mapstructure:"sleeper"`
 }
 
+type AccountConfig struct {
+	PrivateKey string `mapstructure:"privateKey"`
+	To         string `mapstructure:"toAddress"`
+}
+
 type Config struct {
-	Server ServerConfig `mapstructure:"server"`
-	Client ClientConfig `mapstructure:"client"`
+	Server  ServerConfig  `mapstructure:"server"`
+	Client  ClientConfig  `mapstructure:"client"`
+	Account AccountConfig `mapstructure:"account"`
 }
 
 func InitConfig(name, typ, path string) (*Config, error) {

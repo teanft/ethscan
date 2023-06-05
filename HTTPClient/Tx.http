@@ -1,5 +1,5 @@
 ### 签名
-POST {{host}}/sign
+POST {{host}}/tx/sign
 Content-Type: application/json
 
 {
@@ -16,16 +16,16 @@ Content-Type: application/json
     client.test("Request code success", function() {
         client.assert(response.body.code === 200, "Response code is not 200");
     });
-    client.global.set("signed_tx", response.body.data.signed_tx_data);
+    client.global.set("signedTx", response.body.data.signed_tx_data);
 %}
 
 ### 广播已签名的Tx
 
-POST {{host}}/send_sign
+POST {{host}}/tx/send_sign
 Content-Type: application/json
 
 {
-  "signed_tx": "{{signed_tx}}"
+  "signedTx": "{{signedTx}}"
 }
 
 > {%
@@ -35,10 +35,11 @@ Content-Type: application/json
     client.test("Request code success", function() {
         client.assert(response.body.code === 200, "Response code is not 200");
     });
+    client.global.set("txHash", response.body.data.tx_hash);
 %}
 
 ### 创建裸交易
-POST {{host}}/raw
+POST {{host}}/tx/raw
 Content-Type: application/json
 
 {
@@ -55,15 +56,15 @@ Content-Type: application/json
     client.test("Request code success", function() {
         client.assert(response.body.code === 200, "Response code is not 200");
     });
-    client.global.set("raw_tx", response.body.data.raw_tx);
+    client.global.set("rawTx", response.body.data.raw_tx);
 %}
 
 ### 发送裸交易
-POST {{host}}/send_raw
+POST {{host}}/tx/send_raw
 Content-Type: application/json
 
 {
-  "raw_tx": "{{raw_tx}}"
+  "rawTx": "{{rawTx}}"
 }
 
 > {%
@@ -73,6 +74,7 @@ Content-Type: application/json
     client.test("Request code success", function() {
         client.assert(response.body.code === 200, "Response code is not 200");
     });
+    client.global.set("txHash", response.body.data.tx_hash);
 %}
 
 ### 查询指定区块账户余额

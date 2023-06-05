@@ -43,6 +43,15 @@ func GetGasPrice() (*big.Int, error) {
 	return gasPrice, nil
 }
 
+func GetSuggestGasTipCap() (*big.Int, error) {
+	gasTipCap, err := Client.SuggestGasTipCap(context.Background())
+	if err != nil {
+		return nil, util.NewErr("failed to get gas tip cap", err)
+	}
+
+	return gasTipCap, nil
+}
+
 func GetBalanceAt(address string, blockNumber *big.Int) (*big.Int, error) {
 	account := common.HexToAddress(address)
 	balance, err := Client.BalanceAt(context.Background(), account, blockNumber)
@@ -172,9 +181,9 @@ func GetTransactionByHash(hash string) (*types.Transaction, bool, error) {
 	return tx, isPending, nil
 }
 
-func GetTransactionSender(tx *types.Transaction, block string, index uint) (common.Address, error) {
-	blockHash := common.HexToHash(block)
-	address, err := Client.TransactionSender(context.Background(), tx, blockHash, index)
+func GetTransactionSender(tx *types.Transaction, blockHash string, index uint) (common.Address, error) {
+	hash := common.HexToHash(blockHash)
+	address, err := Client.TransactionSender(context.Background(), tx, hash, index)
 	if err != nil {
 		return common.Address{}, util.NewErr("failed to get transaction sender", err)
 	}

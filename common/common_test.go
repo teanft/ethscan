@@ -49,28 +49,16 @@ func TestGetBalanceAt(t *testing.T) {
 	fmt.Println("pending中的值为：", pendingBalance)
 }
 
-func TestGetRawTx(t *testing.T) {
+func TestGetEIP1559SignedTx(t *testing.T) {
 	_, err := NewTestClient()
 	if err != nil {
 		log.Fatal(err)
 	}
-	rawTx, err := getRawTx(21000, "0xc0749b740cAe8768b89547fEdbC33eB45afC236c", big.NewInt(234))
+
+	tx, err := GetEIP1559SignedTx(2100, "940ecd6cb79ee888afa195c1c6fbe71ed17153d7ef59b3ecd8ff12015e97b3e0", "0xc0749b740cAe8768b89547fEdbC33eB45afC236c", big.NewInt(321))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	fmt.Println(rawTx)
-}
-
-func TestGetSignedTxData(t *testing.T) {
-	_, err := NewTestClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	rawTx, err := getSignedTxData(21000, "0xc0749b740cAe8768b89547fEdbC33eB45afC236c", big.NewInt(234))
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	fmt.Println(rawTx)
+	fmt.Println(tx)
 }

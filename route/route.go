@@ -11,9 +11,17 @@ func CollectRoute(r *gin.Engine) *gin.Engine {
 	r.POST("/balance", controller.BalanceHandler)
 	r.POST("/nonce", controller.NonceHandler)
 	r.POST("/pending_nonce", controller.PendingNonceHandler)
-	r.POST("/sign", controller.SignHandler)
-	r.POST("/raw", controller.RawHandler)
-	r.POST("/send_sign", controller.SendSignTransactionHandler)
-	r.POST("/send_raw", controller.SendRawTransactionHandler)
+	// tx 组路由
+	tx := r.Group("/tx")
+	{
+		tx.POST("", controller.TxHandler)
+		tx.POST("/sign", controller.SignHandler)
+		tx.POST("/raw", controller.RawHandler)
+		tx.POST("/send_sign", controller.SendSignTransactionHandler)
+		tx.POST("/send_raw", controller.SendRawTransactionHandler)
+
+	}
+	r.POST("/block", controller.BlockHandler)
+	//r.POST("/tx", controller.TransactionHandler)
 	return r
 }

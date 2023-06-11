@@ -5,6 +5,12 @@ import (
 	"net/http"
 )
 
+type ResponseMsg struct {
+	Code int    `json:"code"`
+	Data any    `json:"data"`
+	Msg  string `json:"msg"`
+}
+
 func Response(ctx *gin.Context, httpStatus int, code int, data gin.H, msg string) {
 	ctx.JSON(httpStatus, gin.H{
 		"code": code,

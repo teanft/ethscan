@@ -17,6 +17,7 @@ type ServerConfig struct {
 
 type ClientConfig struct {
 	URL        string        `mapstructure:"url"`
+	PageSize   int           `mapstructure:"page"`
 	Timeout    time.Duration `mapstructure:"timeout"`
 	MaxRetries int           `mapstructure:"maxRetries"`
 	Sleeper    time.Duration `mapstructure:"sleeper"`

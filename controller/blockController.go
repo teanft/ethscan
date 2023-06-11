@@ -2,14 +2,16 @@ package controller
 
 import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/gin-gonic/gin"
 	"github.com/teanft/ethscan/common"
 	"github.com/teanft/ethscan/model"
+	"github.com/teanft/ethscan/util"
 	"math/big"
 )
 
-func BlockHeight(c *gin.Context) {
-	blockNumber, err := common.GetBlockNumber()
+func BlockHeightHandler(c *gin.Context) {
+	blockNumber, err := common.GetBlockNumber(c)
 	if err != nil {
 		common.Fail(c, gin.H{"get LastBlockNumber failed": err.Error()}, "Fail")
 		return
@@ -19,7 +21,7 @@ func BlockHeight(c *gin.Context) {
 }
 
 func GasPriceHandler(c *gin.Context) {
-	gasPrice, err := common.GetGasPrice()
+	gasPrice, err := common.GetGasPrice(c)
 	if err != nil {
 		common.Fail(c, gin.H{"get GasPrice failed": err.Error()}, "Fail")
 		return
@@ -36,14 +38,24 @@ func BalanceHandler(c *gin.Context) {
 		return
 	}
 
+	if util.IsZeroAddress(block.Address) {
+		common.Fail(c, gin.H{"address is zero": block.Address}, "Fail")
+		return
+	}
+
+	if !util.IsValidAddress(block.Address) {
+		common.Fail(c, gin.H{"address is not valid": block.Address}, "Fail")
+		return
+	}
+
 	// 是否包含合约地址
 	if block.Contract != "" {
 		// TODO: 调用合约进行查询
 	}
 
-	balance, err := common.GetBalanceAt(block.Address, block.BlockNumber)
+	balance, err := common.GetBalanceAt(c, block.Address, block.BlockNumber)
 	if err != nil {
-		common.Fail(c, gin.H{"getBalanceAt failed": err.Error()}, "Fail")
+		common.Fail(c, gin.H{"get Balance At failed": err.Error()}, "Fail")
 		return
 	}
 
@@ -58,7 +70,17 @@ func NonceHandler(c *gin.Context) {
 		return
 	}
 
-	nonce, err := common.GetNonceAt(block.Address, block.BlockNumber)
+	if util.IsZeroAddress(block.Address) {
+		common.Fail(c, gin.H{"address is zero": block.Address}, "Fail")
+		return
+	}
+
+	if !util.IsValidAddress(block.Address) {
+		common.Fail(c, gin.H{"address is not valid": block.Address}, "Fail")
+		return
+	}
+
+	nonce, err := common.GetNonceAt(c, block.Address, block.BlockNumber)
 	if err != nil {
 		common.Fail(c, gin.H{"get Nonce failed": err.Error()}, "Fail")
 		return
@@ -75,7 +97,17 @@ func PendingNonceHandler(c *gin.Context) {
 		return
 	}
 
-	nonce, err := common.GetPendingNonceAt(block.Address)
+	if util.IsZeroAddress(block.Address) {
+		common.Fail(c, gin.H{"address is zero": block.Address}, "Fail")
+		return
+	}
+
+	if !util.IsValidAddress(block.Address) {
+		common.Fail(c, gin.H{"address is not valid": block.Address}, "Fail")
+		return
+	}
+
+	nonce, err := common.GetPendingNonceAt(c, block.Address)
 	if err != nil {
 		common.Fail(c, gin.H{"get pending nonce failed": err.Error()}, "Fail")
 		return
@@ -85,21 +117,27 @@ func PendingNonceHandler(c *gin.Context) {
 }
 
 func BlockHandler(c *gin.Context) {
-	var block model.Block
+	block := model.Block{}
 	err := c.Bind(&block)
 	if err != nil {
 		common.Fail(c, gin.H{"bind JSON failed": err.Error()}, "Fail")
 		return
 	}
 
-	blockInfo, err := common.GetBlockByNumber(block.Number)
+	data, err := common.GetBlockByNumber(c, block.Number)
 	if err != nil {
 		common.Fail(c, gin.H{"get block failed": err.Error()}, "Fail")
 		return
 	}
+	blockInfo := data.(*types.Block)
 
 	burntFees := big.NewInt(0)
 	burntFees.Mul(big.NewInt(int64(blockInfo.GasUsed())), blockInfo.BaseFee())
+	withdrawalsRoot := ""
+
+	if blockInfo.Header().WithdrawalsHash != nil {
+		withdrawalsRoot = blockInfo.Header().WithdrawalsHash.Hex()
+	}
 
 	block = model.Block{
 		Number:        blockInfo.Number(),
@@ -115,7 +153,7 @@ func BlockHandler(c *gin.Context) {
 		Hash:            blockInfo.Hash().Hex(),
 		ParentHash:      blockInfo.ParentHash().Hex(),
 		StateRoot:       blockInfo.Header().Root.Hex(),
-		WithdrawalsRoot: blockInfo.Header().WithdrawalsHash.Hex(),
+		WithdrawalsRoot: withdrawalsRoot,
 		Nonce:           blockInfo.Nonce(),
 		Difficulty:      blockInfo.Difficulty(),
 	}

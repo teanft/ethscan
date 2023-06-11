@@ -1,5 +1,5 @@
 ### 签名
-POST {{host}}/tx/sign
+POST {{host}}/transaction/sign
 Content-Type: application/json
 
 {
@@ -16,12 +16,12 @@ Content-Type: application/json
     client.test("Request code success", function() {
         client.assert(response.body.code === 200, "Response code is not 200");
     });
-    client.global.set("signedTx", response.body.data.signed_tx_data);
+    client.global.set("signedTx", response.body.data.signedTxData);
 %}
 
 ### 广播已签名的Tx
 
-POST {{host}}/tx/send_sign
+POST {{host}}/transaction/send_sign
 Content-Type: application/json
 
 {
@@ -39,7 +39,7 @@ Content-Type: application/json
 %}
 
 ### 创建裸交易
-POST {{host}}/tx/raw
+POST {{host}}/transaction/raw
 Content-Type: application/json
 
 {
@@ -56,11 +56,11 @@ Content-Type: application/json
     client.test("Request code success", function() {
         client.assert(response.body.code === 200, "Response code is not 200");
     });
-    client.global.set("rawTx", response.body.data.raw_tx);
+    client.global.set("rawTx", response.body.data.rawTx);
 %}
 
 ### 发送裸交易
-POST {{host}}/tx/send_raw
+POST {{host}}/transaction/send_raw
 Content-Type: application/json
 
 {
@@ -76,6 +76,44 @@ Content-Type: application/json
     });
     client.global.set("txHash", response.body.data.tx_hash);
 %}
+
+### 使用ethclient查询 Transaction
+POST {{host}}/tx
+Content-Type: application/json
+
+{
+  "txHash": "{{txHash}}"
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+
+### 使用 blockNumber 查询 transactions
+GET localhost:8081/txs?block=3656483&p=2
+Content-Type: application/json
+
+{
+  "number": 1322437
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+
+###
+
+
 
 ### 查询指定区块账户余额
 

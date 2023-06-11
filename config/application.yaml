@@ -6,6 +6,7 @@ client:
 #  url: https://eth.llamarpc.com
   url: https://rpc.sepolia.org
 #  url: https://matic-mumbai.chainstacklabs.com
+  page: 30
   timeout: 5s
   maxRetries: 3
   sleeper: 2s

@@ -1,6 +1,9 @@
 package model
 
-import "math/big"
+import (
+	"github.com/INFURA/go-ethlibs/eth"
+	"math/big"
+)
 
 type RPCResult struct {
 	Jsonrpc string `json:"jsonrpc"`
@@ -31,32 +34,28 @@ type EVM struct {
 }
 
 type Transaction struct {
-	TransactionIndex     uint     `json:"transactionIndex"`
-	TxHash               string   `json:"hash"`
-	BlockNumber          *big.Int `json:"blockNumber"`
-	Timestamp            uint64   `json:"timestamp"`
-	From                 string   `json:"from"`
-	To                   string   `json:"to"`
-	Value                *big.Int `json:"value"`
-	GasLimit             string   `json:"gasLimit"` // todo `json:"gas"`
-	GasUsed              uint64   `json:"gasUsed"`
-	GasPrice             *big.Int `json:"gasPrice"`
-	BaseFeePerGas        *big.Int `json:"baseFeePerGas"`
-	MaxFeePerGas         *big.Int `json:"maxFeePerGas"`
-	MaxPriorityFeePerGas *big.Int `json:"maxPriorityFeePerGas"`
-	Burnt                string   `json:"burnt"`          // todo
-	TxnSavingsFees       string   `json:"txnSavingsFees"` // todo
-	BlockHash            string   `json:"blockHash"`
-	InputData            string   `json:"input"`
-	Nonce                uint64   `json:"nonce"`
-	TxnType              uint8    `json:"type"`
-	Size                 uint64   `json:"size"`
-	Cost                 *big.Int `json:"cost"`
-	//ChainId              string        `json:"chainId"`
-	//AccessList           []interface{} `json:"accessList"`
-	//V string `json:"v"`
-	//R string `json:"r"`
-	//S string `json:"s"`
+	TransactionIndex     uint      `json:"transactionIndex"`
+	TxHash               string    `json:"txHash"`
+	Status               string    `json:"status"`
+	BlockNumber          *big.Int  `json:"blockNumber"`
+	BlockHash            string    `json:"blockHash"`
+	Timestamp            uint64    `json:"timestamp"`
+	From                 string    `json:"from"`
+	To                   string    `json:"to"`
+	Value                *big.Int  `json:"value"`
+	TxFee                *big.Int  `json:"fee"`
+	GasPrice             *big.Int  `json:"gasPrice"`
+	GasLimit             uint64    `json:"gasLimit"`
+	GasUsed              uint64    `json:"gasUsed"`
+	BaseFeePerGas        *big.Int  `json:"baseFeePerGas"`
+	MaxFeePerGas         *big.Int  `json:"maxFeePerGas"`
+	MaxPriorityFeePerGas *big.Int  `json:"maxPriorityFeePerGas"`
+	Burnt                *big.Int  `json:"burnt"`
+	TxnSavingsFees       *big.Int  `json:"txnSavingsFees"`
+	TxnType              uint8     `json:"type"`
+	Nonce                uint64    `json:"nonce"`
+	InputData            string    `json:"input"`
+	Logs                 []eth.Log `json:"logs"`
 }
 
 type Block struct {
@@ -85,4 +84,11 @@ type Block struct {
 	//TransactionsRoot string        `json:"transactionsRoot"`
 	//Uncles           []interface{} `json:"uncles"`
 	//Withdrawals      []struct {} `json:"withdrawals"`
+}
+
+type Txs struct {
+	BlockNumber  *big.Int      `json:"blockNumber"`
+	Address      string        `json:"address"`
+	Transactions []Transaction `json:"transactions"`
+	Page         int           `json:"page"`
 }

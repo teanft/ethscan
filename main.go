@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/teanft/ethscan/common"
 	"github.com/teanft/ethscan/config"
 	"github.com/teanft/ethscan/route"
 	"log"
@@ -11,6 +10,7 @@ import (
 
 func start(host, port string) {
 	r := gin.Default()
+	//r.Use(middleware.PanicHandler)
 	r = route.CollectRoute(r)
 
 	if port != "" {
@@ -28,7 +28,6 @@ func main() {
 	workDir, err := os.Getwd()
 	path := workDir + "/config"
 	cfg, err := config.InitConfig("application", "yaml", path)
-	_, err = common.NewClient()
 	if err != nil {
 		panic(err)
 	}

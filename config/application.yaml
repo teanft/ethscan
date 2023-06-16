@@ -1,0 +1,15 @@
+server:
+  host: localhost
+  port: 8081
+client:
+#  url: https://goerli.blockpi.network/v1/rpc/public
+#  url: https://eth.llamarpc.com
+  url: https://rpc.sepolia.org
+#  url: https://matic-mumbai.chainstacklabs.com
+  page: 30
+  timeout: 5s
+  maxRetries: 3
+  sleeper: 2s
+account:
+  privateKey: 2b70dca49b288dda99301cf7c6067b5b90c76542318950304bc32e60feecb258
+  toAddress: 0xc0749b740cAe8768b89547fEdbC33eB45afC236c

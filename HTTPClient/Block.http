@@ -1,0 +1,99 @@
+#url: https://eth.llamarpc.com
+### 获取当前区块高度
+GET {{host}}/height
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+
+### 获取GasPrice
+GET {{host}}/gas_price
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+
+### 查询账户余额
+
+POST {{host}}/balance
+Content-Type: application/json
+
+{
+    "address": "0xc0749b740cAe8768b89547fEdbC33eB45afC236c"
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+
+### 查询最后的nonce
+
+POST {{host}}/nonce
+Content-Type: application/json
+
+{
+  "address": "0xc0749b740cAe8768b89547fEdbC33eB45afC236c"
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+
+### 查询Tx应该使用的下一个nonce
+
+POST {{host}}/pending_nonce
+Content-Type: application/json
+
+{
+  "address": "0xc0749b740cAe8768b89547fEdbC33eB45afC236c"
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+
+### 根据BlockNumber查区块
+
+POST {{host}}/block
+Content-Type: application/json
+
+{
+  "number": {{blockNumber}}
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.test("Request code success", function() {
+        client.assert(response.body.code === 200, "Response code is not 200");
+    });
+%}
+
+###
+

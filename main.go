@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/teanft/ethscan/config"
+	"github.com/teanft/ethscan/middleware"
 	"github.com/teanft/ethscan/route"
 	"log"
 	"os"
@@ -10,7 +11,7 @@ import (
 
 func start(host, port string) {
 	r := gin.Default()
-	//r.Use(middleware.PanicHandler)
+	r.Use(middleware.PanicHandler)
 	r = route.CollectRoute(r)
 
 	if port != "" {
